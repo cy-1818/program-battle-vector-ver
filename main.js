@@ -228,8 +228,8 @@ function shot(face,v0){
 }
 
 function heal(addHP){
-  if(th.mp>addHP*th.hp/100&&addHP>=0){
-    th.mp-=addHP*th.hp/100;
+  if(th.mp>addHP*th.hp/50&&addHP>=0){
+    th.mp-=addHP*th.hp/50;
     th.hp+=addHP;
   }
 }
