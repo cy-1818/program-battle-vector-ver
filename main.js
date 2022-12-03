@@ -183,10 +183,10 @@ function move(face,acceleration){
   if(acceleration>1000){
     move(face,1000);
   }else{
-    if(acceleration>=0&&moveLogi&&(th.hp>acceleration*th.mass||speed(th)<10)){
+    if(acceleration>=0&&moveLogi&&(th.hp>acceleration*th.mass/10||speed(th)<10)){
       moveLogi=false;
       if(speed(th)>=10){
-        th.hp-=acceleration;
+        th.hp-=acceleration*th.mass/10;
       }
       th.move[0]+=Math.cos(face*(Math.PI/180))*acceleration/40;
       th.move[1]+=Math.sin(face*(Math.PI/180))*acceleration/40;
@@ -206,8 +206,8 @@ function shot(face,v0){
         Func:func,
         programFirst:true,
         name:th.parent+"shot:shot",
-        x:th.x+Math.cos(face*(Math.PI/180))*(th.size+4),
-        y:th.y+Math.sin(face*(Math.PI/180))*(th.size+4),
+        x:th.x+Math.cos(face*(Math.PI/180))*(th.size+7),
+        y:th.y+Math.sin(face*(Math.PI/180))*(th.size+7),
         move:[Math.cos(face*(Math.PI/180))*v0/200,
               Math.sin(face*(Math.PI/180))*v0/200],
         hp:10,
