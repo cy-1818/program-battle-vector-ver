@@ -69,16 +69,10 @@ function die(name){
 }
 
 function outCheck(obj){
-  if(obj.x>1000){
-    return true;
-  }else if(obj.y>500){
-    return true;
-  }else if(obj.x<0){
-    return true;
-  }else if(obj.y<0){
-    return true;
-  }else{
+  if(obj.x<1000&&obj.x>0&&obj.y<500&&obj.y>0){
     return false;
+  }else{
+    return true;
   }
 }
 
@@ -180,14 +174,11 @@ function scan(face,length){
 }
 
 function move(face,acceleration){
-  if(acceleration>1000){
+  if(Math.abs(acceleration)>1000){
     move(face,1000);
   }else{
-    if(acceleration>=0&&moveLogi&&(th.hp>acceleration*th.mass/10||speed(th)<10)){
-      moveLogi=false;
-      if(speed(th)>=10){
-        th.hp-=acceleration*th.mass/10;
-      }
+    if(th.hp>Math.abs(acceleration)*th.mass/10){
+      th.hp-=acceleration*th.mass/10;
       th.move[0]+=Math.cos(face*(Math.PI/180))*acceleration/40;
       th.move[1]+=Math.sin(face*(Math.PI/180))*acceleration/40;
     }
@@ -213,7 +204,7 @@ function shot(face,v0){
         hp:10,
         mp:0,
         mpGain:1,
-        mass:3,
+        mass:5,
         shape:"circle",
         size:3,
         color:"white",
@@ -261,6 +252,14 @@ function getMpGain(){
   return th.mpGain;
 }
 
+function getVector(){
+  return th.move;
+}
+
+function getSpeed(){
+  return speed(th.move);
+}
+
 function first(){
   return th.programFirst;
 }
@@ -269,7 +268,6 @@ function first(){
 
 function run(){
   for(var n in objects){
-    moveLogi=true;
     shotTime=0;
     th = getObjectByName(objects[n]);
     th.Func();
