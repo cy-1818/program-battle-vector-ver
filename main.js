@@ -257,7 +257,7 @@ function getVector(){
 }
 
 function getSpeed(){
-  return speed(th.move);
+  return speed(th);
 }
 
 function first(){
