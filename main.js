@@ -5,7 +5,7 @@ var blueHP=document.getElementById("blueHP");
 var redprogram=document.getElementById("redprogram");
 var blueprogram=document.getElementById("blueprogram");
 var jsid = 0;
-var th = {},newspeed = 0,impulse = 0,HPE,HPT,shotTime=0;
+var th = {},newspeed = 0,impulse = 0,HPE,HPT,itemKind="",itemLogi=0,shotTime=0;
 var ec = 0.5;
 
 var addDrow={
@@ -186,7 +186,7 @@ function move(face,acceleration){
 }
 
 function shot(face,v0){
-  if(th.mp >= v0 && shotTime<10){
+  if(th.mp >= v0 && shotTime<10 && v0>=0){
     if(v0 > th.mpGain*100){
       shot(face,th.mpGain*100);
     }else{
@@ -275,6 +275,94 @@ function run(){
   }
 }
 
+function makeItem(){
+ if(Math.random()*10<0.3&&itemLogi>3){
+  if(Math.random()<0.05){
+   itemKind="MG-";
+  }else if(Math.random()<0.5){
+   itemKind="MP+";
+  }else{
+   itemKind="HP+";
+  }
+  makeObject(otherObjects,"item:"+itemKind,{
+   Program:function(){
+    itemLogi=0;
+    var th=this;
+    addDrow.add(function(){
+     c.textAlign="center";
+     c.font="14px sans-serif";
+     c.fillStyle=th.border;
+     c.beginPath();
+     c.fillText(itemKind,th.x,th.y+4);
+     c.closePath();
+     c.fill();
+    })
+    if(this.programFirst){
+     this.out=true;
+     if(itemKind=="MG-"){
+      this.color="plum";
+      this.border="purple";
+     }else if(itemKind=="MP+"){
+      this.color="yellowgreen";
+      this.border="green";
+     }else if(itemKind=="HP+"){
+      this.color="lightskyblue";
+      this.border="navy";
+     }
+     if(this.y>0){
+      this.f=225+(Math.random()>0.5)*90;
+     }else{
+      this.f=45+(Math.random()>0.5)*90;
+     }
+     this.move=[Math.cos(this.f*(Math.PI/180))*5,Math.sin(this.f*(Math.PI/180))*5];
+    }
+    if(this.out){
+      if(!outCheck(this)){
+        this.out=false;
+      }
+    }else{
+      if(this.x<=0||this.x>=1000){
+       this.move[0]*=-1;
+      }else if(this.y<=0||this.y>=500){
+       this.move[1]*=-1;
+      }
+    }
+    var thing=whatThere(this.x,this.y,this.name);
+    if(thing.split(":")[0]=="red"||thing.split(":")[0]=="blue"){
+     thing=getObjectByName(thing);
+     if(itemKind=="MG-"){
+      thing.mpGain/=10;
+     }else if(itemKind=="MP+"){
+      thing.mp+=1000000;
+     }else{
+      thing.hp+=10000;
+     }
+     die(this.name);
+    }
+    this.programFirst=false;
+   },
+   Func:func,
+   programFirst:true,
+   name:"item:"+itemKind,
+   hp:Infinity,
+   mp:0,
+   mpGain:0,
+   x:Math.random()*1000,
+   y:(Math.random()>0.5)*600-50,
+   move:[0,0],
+   mass:1,
+   shape:"circle",
+   size:15,
+   color:null,
+   border:null,
+   sub:{},
+   parent:"item"
+  })
+ }else{
+  itemLogi++;
+ }
+}
+
 function giveMP(){
   var pass;
   for(var n in objects){
@@ -340,6 +428,7 @@ function js(){
   draw();
   giveMP();
   hpShow();
+  makeItem();
 }
 
 function start(){
