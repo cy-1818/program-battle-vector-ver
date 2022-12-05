@@ -277,7 +277,7 @@ function run(){
 
 function makeItem(){
  if(Math.random()*10<0.3&&itemLogi>3){
-  if(Math.random()<0.05){
+  if(Math.random()<0.1){
    itemKind="MG-";
   }else if(Math.random()<0.5){
    itemKind="MP+";
@@ -333,7 +333,7 @@ function makeItem(){
      if(itemKind=="MG-"){
       thing.mpGain/=10;
      }else if(itemKind=="MP+"){
-      thing.mp+=1000000;
+      thing.mp+=100000;
      }else{
       thing.hp+=10000;
      }
