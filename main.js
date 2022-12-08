@@ -174,10 +174,12 @@ function scan(face,length){
 }
 
 function move(face,acceleration){
-  if(Math.abs(acceleration)>1000){
+  if(acceleration<0){
+    move(face+180,acceleration*-1);
+  }else if(acceleration>1000){
     move(face,1000);
   }else{
-    if(th.hp>Math.abs(acceleration)*th.mass/10){
+    if(th.hp>acceleration*th.mass/10){
       th.hp-=acceleration*th.mass/10;
       th.move[0]+=Math.cos(face*(Math.PI/180))*acceleration/40;
       th.move[1]+=Math.sin(face*(Math.PI/180))*acceleration/40;
@@ -218,9 +220,62 @@ function shot(face,v0){
   }
 }
 
+function bomb(face,size,time){
+ if(th.mp>size**2/(time+1)&&size>=0&&time>=0){
+  th.mp-=size**2/(time+1);
+  makeObject(otherObjects,"bomb:bomb",{
+   Program:function(){
+    if(this.size>=this.last){
+     die(this.name);
+    }else if(this.hp<10000){
+     this.size=0;
+     this.hp=Infinity;
+     this.move=[0,0];
+     this.mass=0;
+    }else if(this.hp===Infinity){
+     this.color="hsla(36,100%,"+(100-(this.size/this.last)*50)+"%,"+((this.last/this.size))+")";
+     this.size+=5;
+     var thing;
+     for(var i in objects){
+      thing=getObjectByName(objects[i]);
+      if((thing.x-this.x)**2+(thing.y-this.y)**2<(thing.size+this.size+5)**2){
+       thing.hp-=10;
+      }
+     }
+    }else{
+     this.hp-=1;
+     if(Date.now()%2000<1000){
+      this.color="red";
+    }else{
+      this.color="black";
+     }
+    }
+   },
+   Func:func,
+   name:"bomb:bomb",
+   hp:time*25+10000,
+   mp:0,
+   mpGain:0,
+   x:th.x+Math.cos(face*(Math.PI/180))*(th.size+10),
+   y:th.y+Math.sin(face*(Math.PI/180))*(th.size+10),
+   mass:7,
+   move:[th.move[0],th.move[1]],
+   shape:"circle",
+   size:10,
+   last:size**2,
+   color:"black",
+   border:"lightgray",
+   sub:{},
+   parent:"bomb",
+   clashed:[],
+   joule:0
+  });
+ }
+}
+
 function heal(addHP){
-  if(th.mp>addHP*th.hp/50&&addHP>=0){
-    th.mp-=addHP*th.hp/50;
+  if(th.mp>addHP*40&&addHP>=0){
+    th.mp-=addHP*40;
     th.hp+=addHP;
   }
 }
