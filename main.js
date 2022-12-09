@@ -262,7 +262,7 @@ function bomb(face,size,time){
    move:[th.move[0],th.move[1]],
    shape:"circle",
    size:10,
-   last:size**2,
+   last:size,
    color:"black",
    border:"lightgray",
    sub:{},
