@@ -221,8 +221,8 @@ function shot(face,v0){
 }
 
 function bomb(face,size,time){
- if(th.mp>size**2/(time+1)&&size>=0&&time>=0){
-  th.mp-=size**2/(time+1);
+ if(th.mp>size**2/time&&size>0&&time>0){
+  th.mp-=size**2/time;
   makeObject(otherObjects,"bomb:bomb",{
    Program:function(){
     if(this.size>=this.last){
@@ -231,7 +231,7 @@ function bomb(face,size,time){
      this.size=0;
      this.hp=Infinity;
      this.move=[0,0];
-     this.mass=0;
+     this.mass=1;
     }else if(this.hp===Infinity){
      this.color="hsla(36,100%,"+(100-(this.size/this.last)*50)+"%,"+((this.last/this.size))+")";
      this.size+=5;
