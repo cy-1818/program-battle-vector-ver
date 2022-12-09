@@ -274,8 +274,8 @@ function bomb(face,size,time){
 }
 
 function heal(addHP){
-  if(th.mp>addHP*40&&addHP>=0){
-    th.mp-=addHP*40;
+  if(th.mp>addHP*600&&addHP>=0){
+    th.mp-=addHP*600;
     th.hp+=addHP;
   }
 }
