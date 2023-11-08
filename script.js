@@ -112,30 +112,30 @@ function func(){
     die(th.name);
   }else{
     th.Program();
+    if(outCheck(th)){
+      th.hp-=10000;
+    }
+    th.programFirst = false;
+    var target = whatThere(th.x,th.y,th.name);
+    if(target !== th.name && !th.clashed.includes(target)){
+      target = getObjectByName(target);
+      target.clashed.push(th.name);
+      th.joule = power(th);
+      target.joule = power(target);
+      newspeed = -1*ec*(th.move[0]-target.move[0]);
+      impulse = th.mass*th.move[0]+target.mass*target.move[0];
+      th.move[0]=(impulse-target.mass*newspeed)/(th.mass+target.mass);
+      target.move[0]=(impulse-th.mass*newspeed)/(target.mass+th.mass);
+      newspeed = -1*ec*(th.move[1]-target.move[1]);
+      impulse = th.mass*th.move[1]+target.mass*target.move[1];
+      th.move[1]=(impulse-target.mass*newspeed)/(th.mass+target.mass);
+      target.move[1]=(impulse-th.mass*newspeed)/(target.mass+th.mass);
+      th.hp -= Math.abs(target.joule-power(target));
+      target.hp -= Math.abs(th.joule-power(th));
+    }
+    th.x+=th.move[0];
+    th.y+=th.move[1];
   }
-  if(outCheck(th)){
-    th.hp-=th.mpGain*100+10000;
-  }
-  th.programFirst = false;
-  var target = whatThere(th.x,th.y,th.name);
-  if(target !== th.name && !th.clashed.includes(target)){
-    target = getObjectByName(target);
-    target.clashed.push(th.name);
-    th.joule = power(th);
-    target.joule = power(target);
-    newspeed = -1*ec*(th.move[0]-target.move[0]);
-    impulse = th.mass*th.move[0]+target.mass*target.move[0];
-    th.move[0]=(impulse-target.mass*newspeed)/(th.mass+target.mass);
-    target.move[0]=(impulse-th.mass*newspeed)/(target.mass+th.mass);
-    newspeed = -1*ec*(th.move[1]-target.move[1]);
-    impulse = th.mass*th.move[1]+target.mass*target.move[1];
-    th.move[1]=(impulse-target.mass*newspeed)/(th.mass+target.mass);
-    target.move[1]=(impulse-th.mass*newspeed)/(target.mass+th.mass);
-    th.hp -= Math.abs(target.joule-power(target));
-    target.hp -= Math.abs(th.joule-power(th));
-  }
-  th.x+=th.move[0];
-  th.y+=th.move[1];
 }
 
 function scan(face,length){
@@ -179,7 +179,7 @@ function move(face,acceleration){
   }else if(acceleration>1000){
     move(face,1000);
   }else{
-    if(th.hp>acceleration*th.mass/10){
+    if(th.hp>acceleration*th.mass/10+100){
       th.hp-=acceleration*th.mass/10;
       th.move[0]+=Math.cos(face*(Math.PI/180))*acceleration/40;
       th.move[1]+=Math.sin(face*(Math.PI/180))*acceleration/40;
@@ -203,7 +203,7 @@ function shot(face,v0){
         y:th.y+Math.sin(face*(Math.PI/180))*(th.size+7),
         move:[Math.cos(face*(Math.PI/180))*v0/200,
               Math.sin(face*(Math.PI/180))*v0/200],
-        hp:10,
+        hp:v0/10,
         mp:0,
         mpGain:1,
         mass:5,
@@ -220,6 +220,36 @@ function shot(face,v0){
   }
 }
 
+function makeSub(program,hp,mp,name,color,border){
+ if(th.mp>mp+hp*10+1000000){
+  var subx=th.x;
+  var suby=th.y;
+  var parent=th.parent;
+  th.mp-=mp+hp*2+1000000;
+  makeObject(th.sub,parent+":"+name,{
+   Program:new Function(program),
+   Func:func,
+   programFirst:true,
+   name:parent+":"+name,
+   x:subx,
+   y:suby,
+   hp:hp,
+   mp:mp,
+   mpGain:1,
+   mass:10,
+   move:[th.move[0],th.move[1]],
+   shape:"circle",
+   size:10,
+   color:color,
+   border:border,
+   sub:{},
+   parent:parent,
+   clashed:[],
+   joule:0
+  })
+ }
+}
+
 function bomb(face,size,time){
  if(th.mp>size**2/time&&size>0&&time>0){
   th.mp-=size**2/time;
@@ -231,9 +261,9 @@ function bomb(face,size,time){
      this.size=0;
      this.hp=Infinity;
      this.move=[0,0];
-     this.mass=1;
+     this.mass=0.0000001;
     }else if(this.hp===Infinity){
-     this.color="hsla(36,100%,"+(100-(this.size/this.last)*50)+"%,"+((this.last/this.size))+")";
+     this.color="hsla(36,100%,"+(100-(this.size/this.last)*50)+"%,"+((this.last - this.size)/this.last)+")";
      this.size+=5;
      var thing;
      for(var i in objects){
@@ -378,8 +408,14 @@ function makeItem(){
     }else{
       if(this.x<=0||this.x>=1000){
        this.move[0]*=-1;
+       if(this.x<-20||this.x>1020){
+         die(this.name);
+       }
       }else if(this.y<=0||this.y>=500){
        this.move[1]*=-1;
+       if(this.y<-20||this.y>520){
+         die(this.name);
+       }
       }
     }
     var thing=whatThere(this.x,this.y,this.name);
